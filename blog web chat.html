@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog with Categories</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background-color: #f0f2f5; }
+    nav { background-color: #4267B2; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    nav h1 { font-size: 24px; }
+    nav a { color: white; text-decoration: none; margin-left: 15px; font-weight: bold; }
+    .container { max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
+    .post-form textarea, .comment-input, select { width: 100%; padding: 10px; margin-bottom: 10px; resize: none; }
+    .post-form input[type="file"] { margin-bottom: 10px; }
+    .post-form button, .comment-form button { background-color: #4267B2; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 5px; }
+    .post { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; background-color: #fff; }
+    .post img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+    .post p { margin-top: 10px; }
+    .comments { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+    .comment { padding: 5px 0; border-bottom: 1px solid #eee; }
+    .comment:last-child { border-bottom: none; }
+    .comment-form { display: flex; gap: 5px; margin-top: 10px; }
+    .comment-form input { flex: 1; padding: 5px; }
+    .category-filter { margin-bottom: 15px; }
+    .category-label { font-weight: bold; margin-right: 10px; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+    <h1>My Blog</h1>
+    <div>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+    </div>
+</nav>
+
+<!-- Post Form -->
+<div class="container">
+    <h2>Create Post</h2>
+    <div class="post-form">
+        <textarea id="postText" rows="3" placeholder="What's on your mind?"></textarea>
+        <input type="file" id="postImage" accept="image/*">
+        <select id="postCategory">
+            <option value="">Select Category</option>
+            <option value="News">News</option>
+            <option value="Tech">Tech</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Sports">Sports</option>
+        </select>
+        <button onclick="createPost()">Post</button>
+    </div>
+</div>
+
+<!-- Posts Container -->
+<div class="container">
+    <h2>Posts</h2>
+    <!-- Category Filter -->
+    <div class="category-filter">
+        <span class="category-label">Filter by Category:</span>
+        <select id="categoryFilter" onchange="filterPosts()">
+            <option value="">All</option>
+            <option value="News">News</option>
+            <option value="Tech">Tech</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Sports">Sports</option>
+        </select>
+    </div>
+    <div id="postsContainer">
+        <!-- Posts will appear here -->
+    </div>
+</div>
+
+<script>
+function createPost() {
+    const text = document.getElementById('postText').value;
+    const imageInput = document.getElementById('postImage');
+    const category = document.getElementById('postCategory').value;
+    const postsContainer = document.getElementById('postsContainer');
+
+    if(text.trim() === "" && imageInput.files.length === 0) {
+        alert("Please add some text or select an image!");
+        return;
+    }
+
+    if(category === "") {
+        alert("Please select a category!");
+        return;
+    }
+
+    // Create post element
+    const post = document.createElement('div');
+    post.className = 'post';
+    post.dataset.category = category;
+
+    // Post category
+    const cat = document.createElement('strong');
+    cat.textContent = `Category: ${category}`;
+    post.appendChild(cat);
+
+    if(text) {
+        const p = document.createElement('p');
+        p.textContent = text;
+        post.appendChild(p);
+    }
+
+    if(imageInput.files.length > 0) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(imageInput.files[0]);
+        post.appendChild(img);
+    }
+
+    // Comments section
+    const commentsDiv = document.createElement('div');
+    commentsDiv.className = 'comments';
+    
+    const commentList = document.createElement('div');
+    commentList.className = 'comment-list';
+    commentsDiv.appendChild(commentList);
+
+    // Comment form
+    const commentForm = document.createElement('div');
+    commentForm.className = 'comment-form';
+    const commentInput = document.createElement('input');
+    commentInput.type = 'text';
+    commentInput.placeholder = 'Write a comment...';
+    const commentButton = document.createElement('button');
+    commentButton.textContent = 'Comment';
+
+    commentButton.onclick = () => {
+        if(commentInput.value.trim() === '') return;
+        const comment = document.createElement('div');
+        comment.className = 'comment';
+        comment.textContent = commentInput.value;
+        commentList.appendChild(comment);
+        commentInput.value = '';
+    };
+
+    commentForm.appendChild(commentInput);
+    commentForm.appendChild(commentButton);
+    commentsDiv.appendChild(commentForm);
+
+    post.appendChild(commentsDiv);
+
+    // Prepend post at the top
+    postsContainer.insertBefore(post, postsContainer.firstChild);
+
+    // Reset form
+    document.getElementById('postText').value = '';
+    imageInput.value = '';
+    document.getElementById('postCategory').value = '';
+}
+
+// Filter posts by category
+function filterPosts() {
+    const selectedCategory = document.getElementById('categoryFilter').value;
+    const posts = document.querySelectorAll('#postsContainer .post');
+    posts.forEach(post => {
+        if(selectedCategory === "" || post.dataset.category === selectedCategory) {
+            post.style.display = 'block';
+        } else {
+            post.style.display = 'none';
+        }
+    });
+}
+</script>
+
+</body>
+</html>
